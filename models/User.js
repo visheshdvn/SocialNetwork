@@ -13,6 +13,9 @@ const UserSchema = mongoose.Schema({
     password: {
         type: String
     },
+    avatar: {
+        type: String
+    },
     date: {
         type: Date,
         default: Date.now
