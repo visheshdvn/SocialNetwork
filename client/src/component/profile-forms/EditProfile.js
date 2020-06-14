@@ -1,10 +1,15 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import { Link, withRouter } from 'react-router-dom'
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
-import {createProfile} from '../../actions/profile'
+import {createProfile, getCurrentProfile} from '../../actions/profile'
 
-const CreateProfile = ({createProfile, history }) => {
+const EditProfile = ({
+    profile: {profile, loading},
+    createProfile,
+    getCurrentProfile,
+    history
+}) => {
   const [formData, setformData] = useState({
     company: "",
     website: "",
@@ -21,6 +26,26 @@ const CreateProfile = ({createProfile, history }) => {
   });
 
   const [displaySocialInputs, toggleSocialInputs] = useState(false)
+
+  useEffect(() => {
+        getCurrentProfile();
+
+        setformData({
+            company: loading || !profile.company ? '' : profile.company,
+            website: loading || !profile.website ? '' : profile.website,
+            location: loading || !profile.location ? '' : profile.location,
+            status: loading || !profile.status ? '' : profile.status,
+            skills: loading || !profile.skills ? '' : profile.skills.join(','),
+            githubusername: loading || !profile.githubusername ? '' : profile.githubusername,
+            bio: loading || !profile.bio ? '' : profile.bio,
+            twitter: loading || !profile.social ? '' : profile.twitter,
+            facebook: loading || !profile.social ? '' : profile.company,
+            linkedin: loading || !profile.social ? '' : profile.linkedin,
+            youtube: loading || !profile.social ? '' : profile.youtube,
+            instagram: loading || !profile.social ? '' : profile.instagram
+        })
+            
+  }, [loading])
 
   const {
     company,
@@ -41,7 +66,7 @@ const CreateProfile = ({createProfile, history }) => {
 
   const onSubmit = e =>{
     e.preventDefault()
-    createProfile(formData, history)
+    createProfile(formData, history, true)
   }
 
   return (
@@ -156,7 +181,7 @@ const CreateProfile = ({createProfile, history }) => {
           </div>
           </Fragment> }
 
-          
+           
           <input type="submit" className="btn btn-primary my-1" />
           <Link className="btn btn-light my-1" to="/dashboard">
             Go Back
@@ -167,9 +192,16 @@ const CreateProfile = ({createProfile, history }) => {
   );
 };
 
-CreateProfile.propTypes = {
-  createProfile: PropTypes.func.isRequired
+EditProfile.propTypes = {
+  createProfile: PropTypes.func.isRequired,
+  getCurrentProfile: PropTypes.func.isRequired,
+  profile: PropTypes.object.isRequired
 };
 
+const mapStateToProps = state => ({
+    profile: state.profile
+})
 
-export default connect(null, {createProfile} )(withRouter(CreateProfile));
+export default connect(mapStateToProps,
+    {createProfile, getCurrentProfile}
+    )(withRouter(EditProfile));
